@@ -14,6 +14,7 @@
 #
 # load the Cacti configuration settings if they aren't already present
 #
+$no_http_headers = true;
 if (isset($config) == FALSE) {
 
 	if (file_exists(dirname(__FILE__) . "/../include/config.php")) {
@@ -190,7 +191,7 @@ function ss_ipmitool_sensors($protocol_bundle="", $sensor_type="",
 	#
 	# fill in the blanks for ipmitool
 	#
-	$ipmitool_command = "$ipmitool_command -I lan -H $ipmi_hostname";
+	$ipmitool_command = "$ipmitool_command -I lanplus -L user -H $ipmi_hostname";
 
 	#
 	# check for username and use NULL if not provided
