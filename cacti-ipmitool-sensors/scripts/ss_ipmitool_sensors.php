@@ -294,8 +294,10 @@ function ss_ipmitool_sensors($protocol_bundle="", $sensor_type="",
 		if (preg_match("/^(.+?)\s+\|.+\|.+\|.+\|\s([\-|\.|\d]+)\s/",
 			$ipmitool_response, $scratch) == 0) {
 
-			$sensor_count++;
-			break;
+			$sensor_array[$sensor_count]['name'] = "";
+			$sensor_array[$sensor_count]['reading']="";
+			//$sensor_count++;
+			//break;		//no ignore text values
 		}
 
 		#
