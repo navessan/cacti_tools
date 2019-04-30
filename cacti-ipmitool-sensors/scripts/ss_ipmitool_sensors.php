@@ -177,7 +177,124 @@ function ss_ipmitool_sensors($protocol_bundle="", $sensor_type="",
 			$data_request_key = "";
 		}
 	}
+	#
+	# Get data from cache or ipmitool
+	# use apt-get install php-memcache memcached
+	#
+	$MCache_Host = 'localhost';
+	$MCache_Port = '11211';
+	$cachekey = 'ss_ipmitool_sensors:'.$ipmi_hostname.'-'.$sensor_type;
 
+	$Cache = new Memcache;
+	$Cache->connect($MCache_Host, $MCache_Port);	
+	
+	$sensor_array=$Cache->get($cachekey);
+	
+	if(!$sensor_array){
+		$sensor_array=ss_ipmitool_sensors_ipmi($ipmi_hostname, $ipmi_username, $ipmi_password
+		, $sensor_type, $data_request);
+		$Cache->set($cachekey, $sensor_array, FALSE, 15);
+	}
+
+	#
+	# verify that the sensor_array exists and has data
+	#
+	if ((isset($sensor_array) == FALSE) ||
+		(count($sensor_array) == 0)) {
+
+		echo ("FATAL: No matching sensors were returned from SNMP\n");
+		return;
+	}
+
+	#
+	# generate output
+	#
+	foreach ($sensor_array as $sensor) {
+
+		#
+		# return output data according to $cacti_request
+		#
+		switch ($cacti_request) {
+
+			#
+			# for "index" requests, dump the device column
+			#
+			case "index":
+
+				echo ($sensor['index'] . "\n");
+				break;
+
+			#
+			# for "query" requests, dump the requested columns
+			#
+			case "query":
+
+				switch ($data_request) {
+
+					case "sensordevice":
+
+						echo ($sensor['index'] . ":" . $sensor['index'] . "\n");
+						break;
+
+					case "sensorname":
+
+						echo ($sensor['index'] . ":" . $sensor['name'] . "\n");
+						break;
+
+					case "sensorreading":
+
+						echo ($sensor['index'] . ":" . $sensor['reading'] . "\n");
+						break;
+				}
+
+				break;
+
+			#
+			# for "get" requests, dump the requested data for the requested sensor
+			#
+			case "get":
+
+				#
+				# skip the current row if it isn't the requested sensor
+				#
+				if (strtolower($sensor['index']) != $data_request_key) {
+
+					break;
+				}
+
+				switch ($data_request) {
+
+					case "sensordevice":
+
+						echo ($sensor['index'] . "\n");
+						break;
+
+					case "sensorname":
+
+						echo ($sensor['name'] . "\n");
+						break;
+
+					case "sensorreading":
+
+						if (isset($GLOBALS['called_by_script_server']) == TRUE) {
+
+							return($sensor['reading']);
+						}
+
+						else {
+							echo ($sensor['reading'] . "\n");
+						}
+
+						break;
+				}
+
+				break;
+		}
+	}
+}
+
+function ss_ipmitool_sensors_ipmi($ipmi_hostname, $ipmi_username, $ipmi_password
+			, $sensor_type, $data_request) {
 	#
 	# build the ipmitool command, starting with the location of the ipmitool executable
 	#
@@ -370,102 +487,7 @@ function ss_ipmitool_sensors($protocol_bundle="", $sensor_type="",
 		#
 		$sensor_count++;
 	}
-
-	#
-	# verify that the sensor_array exists and has data
-	#
-	if ((isset($sensor_array) == FALSE) ||
-		(count($sensor_array) == 0)) {
-
-		echo ("FATAL: No matching sensors were returned from SNMP\n");
-		return;
-	}
-
-	#
-	# generate output
-	#
-	foreach ($sensor_array as $sensor) {
-
-		#
-		# return output data according to $cacti_request
-		#
-		switch ($cacti_request) {
-
-			#
-			# for "index" requests, dump the device column
-			#
-			case "index":
-
-				echo ($sensor['index'] . "\n");
-				break;
-
-			#
-			# for "query" requests, dump the requested columns
-			#
-			case "query":
-
-				switch ($data_request) {
-
-					case "sensordevice":
-
-						echo ($sensor['index'] . ":" . $sensor['index'] . "\n");
-						break;
-
-					case "sensorname":
-
-						echo ($sensor['index'] . ":" . $sensor['name'] . "\n");
-						break;
-
-					case "sensorreading":
-
-						echo ($sensor['index'] . ":" . $sensor['reading'] . "\n");
-						break;
-				}
-
-				break;
-
-			#
-			# for "get" requests, dump the requested data for the requested sensor
-			#
-			case "get":
-
-				#
-				# skip the current row if it isn't the requested sensor
-				#
-				if (strtolower($sensor['index']) != $data_request_key) {
-
-					break;
-				}
-
-				switch ($data_request) {
-
-					case "sensordevice":
-
-						echo ($sensor['index'] . "\n");
-						break;
-
-					case "sensorname":
-
-						echo ($sensor['name'] . "\n");
-						break;
-
-					case "sensorreading":
-
-						if (isset($GLOBALS['called_by_script_server']) == TRUE) {
-
-							return($sensor['reading']);
-						}
-
-						else {
-							echo ($sensor['reading'] . "\n");
-						}
-
-						break;
-				}
-
-				break;
-		}
-	}
+	return $sensor_array;
 }
 
 #
