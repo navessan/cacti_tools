@@ -103,6 +103,7 @@ function ss_ipmitool_sensors($protocol_bundle="", $sensor_type="",
 
 	if (($sensor_type != "fan") &&
 		($sensor_type != "temperature") &&
+		($sensor_type != "current") &&		
 		($sensor_type != "voltage")) {
 
 		echo ("FATAL: $sensor_type is not a valid sensor type\n");
@@ -471,7 +472,7 @@ function ss_ipmitool_sensors($protocol_bundle="", $sensor_type="",
 function ss_ipmitool_sensors_syntax() {
 
 	echo ("Usage: ss_ipmitool_sensors.php <hostname>:[<ipmi_username>]:[<ipmi_password>] \ \n" .
- 	"      (FAN|TEMPERATURE|VOLTAGE) (index|query <fieldname>|get <fieldname> <sensor>) \n");
+ 	"      (FAN|TEMPERATURE|VOLTAGE|CURRENT) (index|query <fieldname>|get <fieldname> <sensor>) \n");
 }
 
 ?>
