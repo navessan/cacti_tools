@@ -29,7 +29,9 @@ function ss_win_mssql($hostname, $port, $cmd, $username = NULL, $password = NULL
 	}
 
 	//list($host, $port) = explode(':', $hostname);
+	$trimchr = '\'":'; // default characters to remove
 	$host=$hostname;
+	$port = trim($port,$trimchr);
 	$port = ($port == '' ? '1433' : $port);
 	$username = ($username == NULL ? 'cactistats' : $username);
 	$password = ($password == NULL ? 'CHANGEME' : $password);
