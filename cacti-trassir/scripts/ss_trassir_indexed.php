@@ -251,7 +251,7 @@ stats/
 			
 			$arg=$dir_path.$subdir_guid."/".$value_name;
 			$value_data=client_trassir_get_data($api, $arg, $session_key);
-			echo $value_data["value"]."\n";
+			echo $value_data["value"];
 			break;		
 	}	
 }
