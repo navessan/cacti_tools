@@ -1,0 +1,62 @@
+<interface>
+	<name>Get Trassir Channels Stats</name>
+	<script_path>|path_cacti|/scripts/ss_trassir_indexed.php</script_path>
+	<script_function>ss_trassir_indexed</script_function>
+	<script_server>php</script_server>
+	<arg_prepend>https:|host_hostname|:port:user:password channels</arg_prepend>
+	<arg_index>index</arg_index>
+	<arg_query>query</arg_query>
+	<arg_get>get</arg_get>
+	<output_delimeter>:</output_delimeter>
+	<index_order>Index</index_order>
+	<index_order_type>numeric</index_order_type>
+	<index_title_format>|chosen_order_field|</index_title_format>
+
+	<fields>
+		<Index>
+			<name>Index</name>
+			<direction>input</direction>
+			<query_name>subdir_guid</query_name>
+		</Index>	
+		<name>
+			<name>name</name>
+			<direction>input</direction>
+			<query_name>name</query_name>
+		</name>
+		<kbps_hw_merge>
+			<name>kbps_hw_merge</name>
+			<direction>output</direction>
+			<query_name>stats/kbps_hw_merge</query_name>
+		</kbps_hw_merge>	
+		<fps_main>
+			<name>fps_main</name>
+			<direction>output</direction>
+			<query_name>stats/fps_main</query_name>
+		</fps_main>		
+		<last_error_hw_merge>
+			<name>last_error_hw_merge</name>
+			<direction>output</direction>
+			<query_name>stats/last_error_hw_merge</query_name>
+		</last_error_hw_merge>		
+		<fps_ss>
+			<name>fps_ss</name>
+			<direction>output</direction>
+			<query_name>stats/fps_ss</query_name>
+		</fps_ss>		
+		<kbps_ss>
+			<name>kbps_ss</name>
+			<direction>output</direction>
+			<query_name>stats/kbps_ss</query_name>
+		</kbps_ss>		
+		<debt_sec_hw_merge>
+			<name>debt_sec_hw_merge</name>
+			<direction>output</direction>
+			<query_name>stats/debt_sec_hw_merge</query_name>
+		</debt_sec_hw_merge>		
+		<kbps_main>
+			<name>kbps_main</name>
+			<direction>output</direction>
+			<query_name>stats/kbps_main</query_name>
+		</kbps_main>				
+	</fields>
+</interface>
