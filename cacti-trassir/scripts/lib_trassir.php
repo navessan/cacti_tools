@@ -16,7 +16,9 @@ function client_trassir_get_sid($api,$api_username,$api_password)
 	if (class_exists('Memcache')) {
 		$MCache_Host = 'localhost';
 		$MCache_Port = '11211';
-		$cachekey = 'ss_trassir:'.$api_username;
+		$cachekey = 'ss_trassir:' 
+				.$api->options['base_url']
+				.$api_username;
 		
 		$MemCache = new Memcache;
 		$MemCache->connect($MCache_Host, $MCache_Port);
@@ -28,6 +30,8 @@ function client_trassir_get_sid($api,$api_username,$api_password)
 		if(isset($MemCache) && strlen($session_key)>0)
 			$MemCache->set($cachekey, $session_key, FALSE, 30);
 	}
+	if(isset($MemCache))
+		$MemCache->close();
 	
 	return $session_key;
 }
@@ -92,7 +96,7 @@ function client_trassir_health($api,$session_key)
 	return $data;
 }
 
-function client_trassir_get_data($api, $path, $session_key, $dump_result=0)
+function client_trassir_get_data_not_cached($api, $path, $session_key, $dump_result=0)
 {
 	$result = $api->get($path, ['sid' => $session_key]);
 	if($result->info->http_code != 200)
@@ -105,6 +109,32 @@ function client_trassir_get_data($api, $path, $session_key, $dump_result=0)
 		print_r($result);
 		
 	$res=$result->decode_response();
+	return $res;
+}
+
+function client_trassir_get_data($api, $path, $session_key, $dump_result=0)
+{
+	// Check that the class exists before trying to use it
+	if (class_exists('Memcache')) {
+		$MCache_Host = 'localhost';
+		$MCache_Port = '11211';
+		$cachekey = 'ss_trassir:'. $path.$session_key;
+		
+		$MemCache = new Memcache;
+		$MemCache->connect($MCache_Host, $MCache_Port);
+		$res = $MemCache->get($cachekey);
+	}
+		
+	if(! $res){		
+		$res=client_trassir_get_data_not_cached($api, $path, $session_key, $dump_result);
+		
+		if(isset($MemCache) && isset($res)){
+			$m=$MemCache->set($cachekey, $res, FALSE, 30);
+		}
+	}
+	if(isset($MemCache))
+		$MemCache->close();
+	
 	return $res;
 }
 
