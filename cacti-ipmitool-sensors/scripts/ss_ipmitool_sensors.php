@@ -193,7 +193,6 @@ function ss_ipmitool_sensors($protocol_bundle="", $sensor_type="",
 	if(!$sensor_array){
 		$sensor_array=ss_ipmitool_sensors_ipmi($ipmi_hostname, $ipmi_username, $ipmi_password
 		, $sensor_type, $data_request);
-		$Cache->set($cachekey, $sensor_array, FALSE, 15);
 	}
 
 	#
@@ -201,10 +200,12 @@ function ss_ipmitool_sensors($protocol_bundle="", $sensor_type="",
 	#
 	if ((isset($sensor_array) == FALSE) ||
 		(count($sensor_array) == 0)) {
-
-		echo ("FATAL: No matching sensors were returned from SNMP\n");
+		//echo ("FATAL: No matching sensors were returned from IPMI\n");
 		return;
 	}
+	
+	if(isset($Cache))
+		$Cache->set($cachekey, $sensor_array, FALSE, 30);
 
 	#
 	# generate output
