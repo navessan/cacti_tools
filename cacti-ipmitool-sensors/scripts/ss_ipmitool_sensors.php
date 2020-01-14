@@ -200,7 +200,14 @@ function ss_ipmitool_sensors($protocol_bundle="", $sensor_type="",
 	#
 	if ((isset($sensor_array) == FALSE) ||
 		(count($sensor_array) == 0)) {
-		//echo ("FATAL: No matching sensors were returned from IPMI\n");
+			
+		$message="FATAL: No matching sensors were returned from IPMI\n";
+		
+		if(isset($GLOBALS['called_by_script_server']))
+			cacti_log($message);
+		else
+			echo $message;
+		
 		return;
 	}
 	
@@ -359,25 +366,26 @@ function ss_ipmitool_sensors_ipmi($ipmi_hostname, $ipmi_username, $ipmi_password
 		(substr_count($ipmitool_array[0], "|") < 4) ||
 		(trim($ipmitool_array[0]) == "")) {
 
-		echo ("FATAL: Incomplete results from ipmitool");
+		$message= "FATAL: Incomplete results from ipmitool";
 
 		#
 		# include any response data from ipmitool if available
 		#
 		if (trim($ipmitool_array[0] != "")) {
 
-			echo (" (\"" . substr($ipmitool_array[0], 0, 32) . "...\")\n");
+			$message.= " (\"" . substr($ipmitool_array[0], 0, 32) . "...\")";
 		}
 
 		elseif (trim($ipmitool_output) != "") {
 
-			echo (" (\"" . substr($ipmitool_output, 0, 32) . "...\")\n");
+			$message.= " (\"" . substr($ipmitool_output, 0, 32) . "...\")";
 		}
 
-		else {
-			echo ("\n");
-		}
-
+		if(isset($GLOBALS['called_by_script_server']))
+			cacti_log($message."\n");
+		else
+			echo $message."\n";
+		
 		return;
 	}
 
